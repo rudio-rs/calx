@@ -3,10 +3,15 @@ name = "calx"
 version = "0.1.0"
 authors = ["Chun-Min Chang <chun.m.chang@gmail.com>"]
 edition = "2018"
+license = "LGPL-3.0-only"
+description = "Oxidized Core Audio API"
+repository = "https://github.com/rudio-rs/calx"
+categories = ["api-bindings"]
+keywords = ["core", "audio", "osx"]
 
 [dependencies]
 
 [dependencies.coreaudio-sys]
+version = "0.2"
 default-features = false
 features=["audio_unit", "core_audio"]
-git = "https://github.com/ChunMinChang/coreaudio-sys/"
