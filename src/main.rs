@@ -1,43 +1,35 @@
-use calx::audio_object::{AudioSystemObject, Scope};
+use calx::audio_device::{Device, Scope, SystemDevice};
 
 fn main() {
-    let system_device = AudioSystemObject::default();
-    let input = system_device.get_default_device(Scope::Input);
-    let output = system_device.get_default_device(Scope::Output);
-    println!("default input: {:?}, default output: {:?}", input, output);
+    let system_device = SystemDevice::default();
 
-    let devices = system_device.get_all_devices();
-    println!("devices: {:?}", devices);
-    if let Ok(devices) = system_device.get_all_devices() {
-        let mut input_devices = Vec::new();
-        let mut output_devices = Vec::new();
-        for device in devices.iter() {
-            if device.in_scope(Scope::Input).unwrap_or(false) {
-                input_devices.push(device);
+    match system_device.get_default_device(&Scope::Input) {
+        Ok(device) => println!("default input device: {}", device.id()),
+        Err(e) => println!("Failed to get default input device. Error {}", e),
+    }
+
+    match system_device.get_default_device(&Scope::Output) {
+        Ok(device) => println!("default output device: {}", device.id()),
+        Err(e) => println!("Failed to get default output device. Error {}", e),
+    }
+
+    match system_device.get_all_devices() {
+        Ok(devices) => {
+            fn print_devices_in_scope(devices: &[Device], scope: Scope) {
+                println!("{} devices:", scope);
+                for device in devices.iter() {
+                    if device.in_scope(&scope).unwrap_or(false) {
+                        println!(
+                            "\tid: {}\n\tchannel count: {}",
+                            device.id(),
+                            device.channel_count(&scope).unwrap_or(0)
+                        );
+                    }
+                }
             }
-            if device.in_scope(Scope::Output).unwrap_or(false) {
-                output_devices.push(device);
-            }
+            print_devices_in_scope(&devices, Scope::Input);
+            print_devices_in_scope(&devices, Scope::Output);
         }
-        if !input_devices.is_empty() {
-            println!("Input Devices:");
-            for device in input_devices {
-                println!(
-                    "\t{:?}\n\t\tchannel count: {:?}",
-                    device,
-                    device.get_channel_count(Scope::Input)
-                );
-            }
-        }
-        if !output_devices.is_empty() {
-            println!("Output Devices:");
-            for device in output_devices {
-                println!(
-                    "\t{:?}\n\t\tchannel count: {:?}",
-                    device,
-                    device.get_channel_count(Scope::Output)
-                );
-            }
-        }
+        Err(e) => println!("Failed to get all devices. Error {}", e),
     }
 }

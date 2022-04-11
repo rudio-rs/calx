@@ -12,8 +12,8 @@ pub enum Property {
     DefaultInputDevice,
     DefaultOutputDevice,
     Devices,
+    DeviceStreamConfiguration,
     DeviceStreams,
-    StreamConfiguration,
 }
 
 impl From<Property> for AudioObjectPropertySelector {
@@ -22,8 +22,8 @@ impl From<Property> for AudioObjectPropertySelector {
             Property::DefaultInputDevice => kAudioHardwarePropertyDefaultInputDevice,
             Property::DefaultOutputDevice => kAudioHardwarePropertyDefaultOutputDevice,
             Property::Devices => kAudioHardwarePropertyDevices,
+            Property::DeviceStreamConfiguration => kAudioDevicePropertyStreamConfiguration,
             Property::DeviceStreams => kAudioDevicePropertyStreams,
-            Property::StreamConfiguration => kAudioDevicePropertyStreamConfiguration,
         }
     }
 }
