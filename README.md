@@ -1,7 +1,3 @@
 # Calx
-[![Build Status](https://travis-ci.org/rudio-rs/calx.svg?branch=master)](https://travis-ci.org/rudio-rs/calx)
-Oxidized Core Audio APIs
 
-## TODO
-- Replace `OSStatus` within `Result` by a custom error
-- Implement custom `Derive` for `GetPropertyData` and its friends
+[![Build & Test](https://github.com/rudio-rs/calx/actions/workflows/test.yml/badge.svg)](https://github.com/rudio-rs/calx/actions/workflows/test.yml)
