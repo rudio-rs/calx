@@ -125,24 +125,6 @@ impl Device {
         Ok(streams > 0)
     }
 
-    pub fn transport_type(&self, s: &Side) -> Result<u32, OSStatus> {
-        let address = get_property_address(Property::TransportType, Scope::from(s));
-        let mut transport = 0u32;
-        let mut size = mem::size_of::<u32>();
-        let status = self.0.get_property_data(
-            &address,
-            0,
-            ptr::null_mut::<c_void>(),
-            &mut size,
-            &mut transport,
-        );
-        if status == NO_ERR {
-            Ok(transport)
-        } else {
-            Err(status)
-        }
-    }
-
     pub fn channel_count(&self, s: &Side) -> Result<u32, OSStatus> {
         let buffers = self.stream_configuration(s)?;
         let mut count = 0;
@@ -165,6 +147,24 @@ impl Device {
         );
         if status == NO_ERR {
             Ok(source)
+        } else {
+            Err(status)
+        }
+    }
+
+    pub fn transport_type(&self, s: &Side) -> Result<u32, OSStatus> {
+        let address = get_property_address(Property::TransportType, Scope::from(s));
+        let mut transport = 0u32;
+        let mut size = mem::size_of::<u32>();
+        let status = self.0.get_property_data(
+            &address,
+            0,
+            ptr::null_mut::<c_void>(),
+            &mut size,
+            &mut transport,
+        );
+        if status == NO_ERR {
+            Ok(transport)
         } else {
             Err(status)
         }
