@@ -121,8 +121,8 @@ impl Device {
     }
 
     pub fn in_scope(&self, s: &Side) -> Result<bool, OSStatus> {
-        let streams = self.number_of_streams(s)?;
-        Ok(streams > 0)
+        let streams = self.streams(s)?;
+        Ok(!streams.is_empty())
     }
 
     pub fn buffer_frame_size_range(&self, s: &Side) -> Result<(f64, f64), OSStatus> {
@@ -239,15 +239,32 @@ impl Device {
         }
     }
 
-    fn number_of_streams(&self, s: &Side) -> Result<usize, OSStatus> {
+    fn streams(&self, s: &Side) -> Result<Vec<AudioStreamID>, OSStatus> {
         let address = get_property_address(Property::DeviceStreams, Scope::from(s));
 
         let mut size = 0;
         let status =
             self.0
                 .get_property_data_size(&address, 0, ptr::null_mut::<c_void>(), &mut size);
+        if status != NO_ERR {
+            return Err(status);
+        }
+
+        let element_size = mem::size_of::<AudioStreamID>();
+        assert_eq!(element_size, mem::size_of::<AudioObjectID>());
+        assert_eq!(size % element_size, 0);
+        let elements = size / element_size;
+        let mut buffer = vec![kAudioObjectUnknown; elements];
+
+        let status = self.0.get_property_data(
+            &address,
+            0,
+            ptr::null_mut::<c_void>(),
+            &mut size,
+            buffer.as_mut_ptr(),
+        );
         if status == NO_ERR {
-            Ok(size / mem::size_of::<AudioStreamID>())
+            Ok(buffer)
         } else {
             Err(status)
         }
