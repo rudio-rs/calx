@@ -9,6 +9,7 @@ use coreaudio_sys::{
     AudioObjectID, AudioStreamID, AudioValueRange, OSStatus,
 };
 use property_address::{get_property_address, Property, Scope};
+use std::fmt;
 use std::mem;
 use std::os::raw::c_void;
 use std::ptr;
@@ -21,8 +22,8 @@ pub enum Side {
     Output,
 }
 
-impl std::fmt::Display for Side {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl fmt::Display for Side {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
             "{}",
@@ -107,6 +108,15 @@ impl Default for SystemDevice {
     }
 }
 
+#[derive(PartialEq)]
+pub struct DeviceId(AudioObjectID);
+
+impl fmt::Display for DeviceId {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
 pub struct Device(AudioObject);
 
 impl Device {
@@ -114,12 +124,12 @@ impl Device {
         Self(AudioObject::new(id))
     }
 
-    pub fn id(&self) -> AudioObjectID {
-        self.0.id()
+    pub fn id(&self) -> DeviceId {
+        DeviceId(self.0.id())
     }
 
     pub fn is_valid(&self) -> bool {
-        self.id() != kAudioObjectUnknown
+        self.id() != DeviceId(kAudioObjectUnknown)
     }
 
     pub fn in_scope(&self, s: &Side) -> Result<bool, OSStatus> {
