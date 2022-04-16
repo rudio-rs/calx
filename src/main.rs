@@ -22,7 +22,9 @@ fn main() {
                         println!(
                             "\tid: {}\n\tchannel count: {}\n\ttransport type: {}",
                             device.id(),
-                            device.channel_count(&s).unwrap_or(0),
+                            device
+                                .channel_count(&s)
+                                .map_or_else(|e| format!("Error: {}", e), |c| c.to_string()),
                             device
                                 .transport_type(&s)
                                 .map_or_else(|e| format!("Error: {}", e), |t| t.to_string()),
