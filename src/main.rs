@@ -20,7 +20,7 @@ fn main() {
                 for device in devices.iter() {
                     if device.in_scope(&s).unwrap_or(false) {
                         println!(
-                            "id: {}\n\tbuffer frame size range: {}\n\tchannel count: {}\n\tlatency: {}\n\tsample rate: {}\n\tsource: {}\n\ttransport type: {}",
+                            "id: {}\n\tbuffer frame size range: {}\n\tchannel count: {}\n\tlatency: {}\n\tsample rate: {}\n\tsample rate ranges: {}\n\tsource: {}\n\ttransport type: {}",
                             device.id(),
                             device.buffer_frame_size_range(&s).map_or_else(
                                 |e| format!("Error: {}", e),
@@ -35,6 +35,9 @@ fn main() {
                             device
                                 .sample_rate(&s)
                                 .map_or_else(|e| format!("Error: {}", e), |r| r.to_string()),
+                            device
+                                .sample_rate_ranges(&s)
+                                .map_or_else(|e| format!("Error: {}", e), |ranges| format!("{:?}", ranges)),
                             device
                                 .source(&s)
                                 .map_or_else(|e| format!("Error: {}", e), u32_to_string),

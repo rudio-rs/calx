@@ -1,12 +1,13 @@
 use coreaudio_sys::{
-    kAudioDevicePropertyBufferFrameSizeRange, kAudioDevicePropertyDataSource,
-    kAudioDevicePropertyLatency, kAudioDevicePropertyNominalSampleRate,
-    kAudioDevicePropertyStreamConfiguration, kAudioDevicePropertyStreams,
-    kAudioDevicePropertyTransportType, kAudioHardwarePropertyDefaultInputDevice,
-    kAudioHardwarePropertyDefaultOutputDevice, kAudioHardwarePropertyDevices,
-    kAudioObjectPropertyElementMaster, kAudioObjectPropertyScopeGlobal,
-    kAudioObjectPropertyScopeInput, kAudioObjectPropertyScopeOutput, AudioObjectPropertyAddress,
-    AudioObjectPropertyScope, AudioObjectPropertySelector,
+    kAudioDevicePropertyAvailableNominalSampleRates, kAudioDevicePropertyBufferFrameSizeRange,
+    kAudioDevicePropertyDataSource, kAudioDevicePropertyLatency,
+    kAudioDevicePropertyNominalSampleRate, kAudioDevicePropertyStreamConfiguration,
+    kAudioDevicePropertyStreams, kAudioDevicePropertyTransportType,
+    kAudioHardwarePropertyDefaultInputDevice, kAudioHardwarePropertyDefaultOutputDevice,
+    kAudioHardwarePropertyDevices, kAudioObjectPropertyElementMaster,
+    kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyScopeInput,
+    kAudioObjectPropertyScopeOutput, AudioObjectPropertyAddress, AudioObjectPropertyScope,
+    AudioObjectPropertySelector,
 };
 
 #[derive(Debug)]
@@ -17,6 +18,7 @@ pub enum Property {
     DeviceBufferFrameSizeRange,
     DeviceLatency,
     DeviceSampleRate,
+    DeviceSampleRates,
     DeviceSource,
     DeviceStreamConfiguration,
     DeviceStreams,
@@ -34,6 +36,7 @@ impl From<Property> for AudioObjectPropertySelector {
             Property::DeviceBufferFrameSizeRange => kAudioDevicePropertyBufferFrameSizeRange,
             Property::DeviceLatency => kAudioDevicePropertyLatency,
             Property::DeviceSampleRate => kAudioDevicePropertyNominalSampleRate,
+            Property::DeviceSampleRates => kAudioDevicePropertyAvailableNominalSampleRates,
             Property::DeviceSource => kAudioDevicePropertyDataSource,
             Property::DeviceStreamConfiguration => kAudioDevicePropertyStreamConfiguration,
             Property::DeviceStreams => kAudioDevicePropertyStreams,

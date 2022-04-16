@@ -184,6 +184,39 @@ impl Device {
         }
     }
 
+    pub fn sample_rate_ranges(&self, s: &Side) -> Result<Vec<(f64, f64)>, OSStatus> {
+        let address = get_property_address(Property::DeviceSampleRates, Scope::from(s));
+
+        let mut size = 0;
+        let status =
+            self.0
+                .get_property_data_size(&address, 0, ptr::null_mut::<c_void>(), &mut size);
+        if status != NO_ERR {
+            return Err(status);
+        }
+
+        let element_size = mem::size_of::<AudioValueRange>();
+        assert_eq!(size % element_size, 0);
+        let elements = size / element_size;
+        let mut buffer = vec![AudioValueRange::default(); elements];
+
+        let status = self.0.get_property_data(
+            &address,
+            0,
+            ptr::null_mut::<c_void>(),
+            &mut size,
+            buffer.as_mut_ptr(),
+        );
+        if status == NO_ERR {
+            Ok(buffer
+                .into_iter()
+                .map(|r| (r.mMinimum, r.mMaximum))
+                .collect())
+        } else {
+            Err(status)
+        }
+    }
+
     pub fn source(&self, s: &Side) -> Result<u32, OSStatus> {
         let address = get_property_address(Property::DeviceSource, Scope::from(s));
         let mut source = 0u32;
