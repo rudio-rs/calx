@@ -13,9 +13,9 @@ use coreaudio_sys::{
 pub enum Property {
     DefaultInputDevice,
     DefaultOutputDevice,
+    Devices,
     DeviceBufferFrameSizeRange,
     DeviceLatency,
-    Devices,
     DeviceSampleRate,
     DeviceSource,
     DeviceStreamConfiguration,
@@ -26,11 +26,13 @@ pub enum Property {
 impl From<Property> for AudioObjectPropertySelector {
     fn from(p: Property) -> Self {
         match p {
+            // kAudioHardwareProperty*
             Property::DefaultInputDevice => kAudioHardwarePropertyDefaultInputDevice,
             Property::DefaultOutputDevice => kAudioHardwarePropertyDefaultOutputDevice,
+            Property::Devices => kAudioHardwarePropertyDevices,
+            // kAudioDeviceProperty*
             Property::DeviceBufferFrameSizeRange => kAudioDevicePropertyBufferFrameSizeRange,
             Property::DeviceLatency => kAudioDevicePropertyLatency,
-            Property::Devices => kAudioHardwarePropertyDevices,
             Property::DeviceSampleRate => kAudioDevicePropertyNominalSampleRate,
             Property::DeviceSource => kAudioDevicePropertyDataSource,
             Property::DeviceStreamConfiguration => kAudioDevicePropertyStreamConfiguration,
