@@ -337,25 +337,25 @@ impl Device {
 
 #[test]
 fn test_default_devices() {
-    check_device_is_in_scope(Scope::Input);
-    check_device_is_in_scope(Scope::Output);
+    check_device_is_in_scope(Side::Input);
+    check_device_is_in_scope(Side::Output);
 
-    fn check_device_is_in_scope(scope: Scope) {
+    fn check_device_is_in_scope(s: Side) {
         use coreaudio_sys::kAudioHardwareBadObjectError;
         let system_device = SystemDevice::default();
-        match system_device.get_default_device(&scope) {
+        match system_device.get_default_device(&s) {
             Ok(device) => {
                 if device.is_valid() {
-                    assert!(device.in_scope(&scope).unwrap());
+                    assert!(device.in_scope(&s).unwrap());
                 } else {
                     assert_eq!(
-                        device.in_scope(&scope).unwrap_err(),
+                        device.in_scope(&s).unwrap_err(),
                         kAudioHardwareBadObjectError as OSStatus
                     );
                 }
             }
             Err(e) => {
-                println!("Failed to get default {} device. Error: {}", scope, e);
+                println!("Failed to get default {} device. Error: {}", s, e);
             }
         }
     }
@@ -365,8 +365,8 @@ fn test_default_devices() {
 fn test_device_list() {
     let system_device = SystemDevice::default();
     let devices = system_device.get_all_devices().unwrap();
-    let input = system_device.get_default_device(&Scope::Input);
-    let output = system_device.get_default_device(&Scope::Output);
+    let input = system_device.get_default_device(&Side::Input);
+    let output = system_device.get_default_device(&Side::Output);
     assert_eq!(
         devices.is_empty(),
         (input.is_err() || !input.unwrap().is_valid())
