@@ -28,6 +28,9 @@ fn main() {
                             \tmodel uid:\n\
                                 \t\t{} - {}\n\
                                 \t\tglobal - {}\n\
+                            \tname:\n\
+                                \t\t{} - {}\n\
+                                \t\tglobal - {}\n\
                             \tsample rate: {}\n\
                             \tsample rate ranges: {}\n\
                             \tsource: {}\n\
@@ -56,6 +59,13 @@ fn main() {
                                 .map_or_else(|e| format!("Error: {}", e), |u| u),
                             device
                                 .model_uid(None)
+                                .map_or_else(|e| format!("Error: {}", e), |u| u),
+                            s,
+                            device
+                                .name(Some(&s))
+                                .map_or_else(|e| format!("Error: {}", e), |u| u),
+                            device
+                                .name(None)
                                 .map_or_else(|e| format!("Error: {}", e), |u| u),
                             device
                                 .sample_rate(&s)

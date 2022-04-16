@@ -224,6 +224,30 @@ impl Device {
         }
     }
 
+    pub fn name(&self, s: Option<&Side>) -> Result<String, OSStatus> {
+        let address = get_property_address(
+            Property::DeviceName,
+            if let Some(side) = s {
+                Scope::from(side)
+            } else {
+                Scope::Global
+            },
+        );
+
+        let mut size = mem::size_of::<CFStringRef>();
+        let mut uid: CFStringRef = ptr::null();
+        let status =
+            self.0
+                .get_property_data(&address, 0, ptr::null_mut::<c_void>(), &mut size, &mut uid);
+        if status == NO_ERR {
+            let s = StringRef::new(uid);
+            let utf8 = s.to_utf8();
+            Ok(String::from_utf8_lossy(&utf8).to_string())
+        } else {
+            Err(status)
+        }
+    }
+
     pub fn sample_rate(&self, s: &Side) -> Result<f64, OSStatus> {
         let address = get_property_address(Property::DeviceSampleRate, Scope::from(s));
         let mut rate = 0f64;
