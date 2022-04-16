@@ -1,7 +1,9 @@
 mod audio_object;
 mod property_address;
 
+use super::string::StringRef;
 use audio_object::AudioObject;
+use core_foundation_sys::string::CFStringRef;
 use coreaudio_sys::{
     kAudioObjectSystemObject, kAudioObjectUnknown, noErr, AudioBuffer, AudioBufferList,
     AudioObjectID, AudioStreamID, AudioValueRange, OSStatus,
@@ -266,6 +268,30 @@ impl Device {
         );
         if status == NO_ERR {
             Ok(transport)
+        } else {
+            Err(status)
+        }
+    }
+
+    pub fn uid(&self, s: Option<&Side>) -> Result<String, OSStatus> {
+        let address = get_property_address(
+            Property::DeviceUID,
+            if let Some(side) = s {
+                Scope::from(side)
+            } else {
+                Scope::Global
+            },
+        );
+
+        let mut size = mem::size_of::<CFStringRef>();
+        let mut uid: CFStringRef = ptr::null();
+        let status =
+            self.0
+                .get_property_data(&address, 0, ptr::null_mut::<c_void>(), &mut size, &mut uid);
+        if status == NO_ERR {
+            let s = StringRef::new(uid);
+            let utf8 = s.to_utf8();
+            Ok(String::from_utf8_lossy(&utf8).to_string())
         } else {
             Err(status)
         }

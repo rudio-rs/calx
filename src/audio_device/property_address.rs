@@ -1,13 +1,13 @@
 use coreaudio_sys::{
     kAudioDevicePropertyAvailableNominalSampleRates, kAudioDevicePropertyBufferFrameSizeRange,
-    kAudioDevicePropertyClockDomain, kAudioDevicePropertyDataSource, kAudioDevicePropertyLatency,
-    kAudioDevicePropertyNominalSampleRate, kAudioDevicePropertyStreamConfiguration,
-    kAudioDevicePropertyStreams, kAudioDevicePropertyTransportType,
-    kAudioHardwarePropertyDefaultInputDevice, kAudioHardwarePropertyDefaultOutputDevice,
-    kAudioHardwarePropertyDevices, kAudioObjectPropertyElementMaster,
-    kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyScopeInput,
-    kAudioObjectPropertyScopeOutput, AudioObjectPropertyAddress, AudioObjectPropertyScope,
-    AudioObjectPropertySelector,
+    kAudioDevicePropertyClockDomain, kAudioDevicePropertyDataSource, kAudioDevicePropertyDeviceUID,
+    kAudioDevicePropertyLatency, kAudioDevicePropertyNominalSampleRate,
+    kAudioDevicePropertyStreamConfiguration, kAudioDevicePropertyStreams,
+    kAudioDevicePropertyTransportType, kAudioHardwarePropertyDefaultInputDevice,
+    kAudioHardwarePropertyDefaultOutputDevice, kAudioHardwarePropertyDevices,
+    kAudioObjectPropertyElementMaster, kAudioObjectPropertyScopeGlobal,
+    kAudioObjectPropertyScopeInput, kAudioObjectPropertyScopeOutput, AudioObjectPropertyAddress,
+    AudioObjectPropertyScope, AudioObjectPropertySelector,
 };
 
 pub enum Property {
@@ -22,6 +22,7 @@ pub enum Property {
     DeviceSource,
     DeviceStreamConfiguration,
     DeviceStreams,
+    DeviceUID,
     TransportType,
 }
 
@@ -41,6 +42,7 @@ impl From<Property> for AudioObjectPropertySelector {
             Property::DeviceSource => kAudioDevicePropertyDataSource,
             Property::DeviceStreamConfiguration => kAudioDevicePropertyStreamConfiguration,
             Property::DeviceStreams => kAudioDevicePropertyStreams,
+            Property::DeviceUID => kAudioDevicePropertyDeviceUID,
             Property::TransportType => kAudioDevicePropertyTransportType,
         }
     }
