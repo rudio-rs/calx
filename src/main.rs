@@ -20,8 +20,12 @@ fn main() {
                 for device in devices.iter() {
                     if device.in_scope(&s).unwrap_or(false) {
                         println!(
-                            "\tid: {}\n\tchannel count: {}\n\tsource: {}\n\ttransport type: {}",
+                            "\tid: {}\n\tbuffer frame size range: {}\n\tchannel count: {}\n\tsource: {}\n\ttransport type: {}",
                             device.id(),
+                            device.buffer_frame_size_range(&s).map_or_else(
+                                |e| format!("Error: {}", e),
+                                |(min, max)| format!("[{}, {}]", min, max)
+                            ),
                             device
                                 .channel_count(&s)
                                 .map_or_else(|e| format!("Error: {}", e), |c| c.to_string()),

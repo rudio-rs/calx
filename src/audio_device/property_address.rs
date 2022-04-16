@@ -1,17 +1,18 @@
 use coreaudio_sys::{
-    kAudioDevicePropertyDataSource, kAudioDevicePropertyStreamConfiguration,
-    kAudioDevicePropertyStreams, kAudioDevicePropertyTransportType,
-    kAudioHardwarePropertyDefaultInputDevice, kAudioHardwarePropertyDefaultOutputDevice,
-    kAudioHardwarePropertyDevices, kAudioObjectPropertyElementMaster,
-    kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyScopeInput,
-    kAudioObjectPropertyScopeOutput, AudioObjectPropertyAddress, AudioObjectPropertyScope,
-    AudioObjectPropertySelector,
+    kAudioDevicePropertyBufferFrameSizeRange, kAudioDevicePropertyDataSource,
+    kAudioDevicePropertyStreamConfiguration, kAudioDevicePropertyStreams,
+    kAudioDevicePropertyTransportType, kAudioHardwarePropertyDefaultInputDevice,
+    kAudioHardwarePropertyDefaultOutputDevice, kAudioHardwarePropertyDevices,
+    kAudioObjectPropertyElementMaster, kAudioObjectPropertyScopeGlobal,
+    kAudioObjectPropertyScopeInput, kAudioObjectPropertyScopeOutput, AudioObjectPropertyAddress,
+    AudioObjectPropertyScope, AudioObjectPropertySelector,
 };
 
 #[derive(Debug)]
 pub enum Property {
     DefaultInputDevice,
     DefaultOutputDevice,
+    DeviceBufferFrameSizeRange,
     Devices,
     DeviceSource,
     DeviceStreamConfiguration,
@@ -24,6 +25,7 @@ impl From<Property> for AudioObjectPropertySelector {
         match p {
             Property::DefaultInputDevice => kAudioHardwarePropertyDefaultInputDevice,
             Property::DefaultOutputDevice => kAudioHardwarePropertyDefaultOutputDevice,
+            Property::DeviceBufferFrameSizeRange => kAudioDevicePropertyBufferFrameSizeRange,
             Property::Devices => kAudioHardwarePropertyDevices,
             Property::DeviceSource => kAudioDevicePropertyDataSource,
             Property::DeviceStreamConfiguration => kAudioDevicePropertyStreamConfiguration,

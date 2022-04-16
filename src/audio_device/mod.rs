@@ -4,7 +4,7 @@ mod property_address;
 use audio_object::AudioObject;
 use coreaudio_sys::{
     kAudioObjectSystemObject, kAudioObjectUnknown, noErr, AudioBuffer, AudioBufferList,
-    AudioObjectID, AudioStreamID, OSStatus,
+    AudioObjectID, AudioStreamID, AudioValueRange, OSStatus,
 };
 use property_address::{get_property_address, Property, Scope};
 use std::mem;
@@ -132,6 +132,24 @@ impl Device {
             count += buffer.mNumberChannels;
         }
         Ok(count)
+    }
+
+    pub fn buffer_frame_size_range(&self, s: &Side) -> Result<(f64, f64), OSStatus> {
+        let address = get_property_address(Property::DeviceBufferFrameSizeRange, Scope::from(s));
+        let mut range = AudioValueRange::default();
+        let mut size = mem::size_of::<AudioValueRange>();
+        let status = self.0.get_property_data(
+            &address,
+            0,
+            ptr::null_mut::<c_void>(),
+            &mut size,
+            &mut range,
+        );
+        if status == NO_ERR {
+            Ok((range.mMinimum, range.mMaximum))
+        } else {
+            Err(status)
+        }
     }
 
     pub fn source(&self, s: &Side) -> Result<u32, OSStatus> {
