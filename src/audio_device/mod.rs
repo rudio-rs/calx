@@ -152,6 +152,24 @@ impl Device {
         Ok(count)
     }
 
+    pub fn clock_domain(&self, s: &Side) -> Result<u32, OSStatus> {
+        let address = get_property_address(Property::ClockDomain, Scope::from(s));
+        let mut domain = 0u32;
+        let mut size = mem::size_of::<u32>();
+        let status = self.0.get_property_data(
+            &address,
+            0,
+            ptr::null_mut::<c_void>(),
+            &mut size,
+            &mut domain,
+        );
+        if status == NO_ERR {
+            Ok(domain)
+        } else {
+            Err(status)
+        }
+    }
+
     pub fn latency(&self, s: &Side) -> Result<u32, OSStatus> {
         let address = get_property_address(Property::DeviceLatency, Scope::from(s));
         let mut latency = 0u32;

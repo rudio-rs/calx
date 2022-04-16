@@ -1,6 +1,6 @@
 use coreaudio_sys::{
     kAudioDevicePropertyAvailableNominalSampleRates, kAudioDevicePropertyBufferFrameSizeRange,
-    kAudioDevicePropertyDataSource, kAudioDevicePropertyLatency,
+    kAudioDevicePropertyClockDomain, kAudioDevicePropertyDataSource, kAudioDevicePropertyLatency,
     kAudioDevicePropertyNominalSampleRate, kAudioDevicePropertyStreamConfiguration,
     kAudioDevicePropertyStreams, kAudioDevicePropertyTransportType,
     kAudioHardwarePropertyDefaultInputDevice, kAudioHardwarePropertyDefaultOutputDevice,
@@ -14,6 +14,7 @@ pub enum Property {
     DefaultInputDevice,
     DefaultOutputDevice,
     Devices,
+    ClockDomain,
     DeviceBufferFrameSizeRange,
     DeviceLatency,
     DeviceSampleRate,
@@ -32,6 +33,7 @@ impl From<Property> for AudioObjectPropertySelector {
             Property::DefaultOutputDevice => kAudioHardwarePropertyDefaultOutputDevice,
             Property::Devices => kAudioHardwarePropertyDevices,
             // kAudioDeviceProperty*
+            Property::ClockDomain => kAudioDevicePropertyClockDomain,
             Property::DeviceBufferFrameSizeRange => kAudioDevicePropertyBufferFrameSizeRange,
             Property::DeviceLatency => kAudioDevicePropertyLatency,
             Property::DeviceSampleRate => kAudioDevicePropertyNominalSampleRate,
