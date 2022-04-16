@@ -6,7 +6,7 @@ use audio_object::AudioObject;
 use core_foundation_sys::string::CFStringRef;
 use coreaudio_sys::{
     kAudioObjectSystemObject, kAudioObjectUnknown, noErr, AudioBuffer, AudioBufferList,
-    AudioObjectID, AudioStreamID, AudioValueRange, OSStatus,
+    AudioObjectID, AudioStreamID, AudioValueRange, AudioValueTranslation, OSStatus,
 };
 use property_address::{get_property_address, Property, Scope};
 use std::fmt;
@@ -284,6 +284,29 @@ impl Device {
         );
         if status == NO_ERR {
             Ok(source)
+        } else {
+            Err(status)
+        }
+    }
+
+    pub fn source_name(&self, s: &Side) -> Result<String, OSStatus> {
+        let mut source = self.source(s)?;
+        let address = get_property_address(Property::DeviceSourceName, Scope::from(s));
+        let mut size = mem::size_of::<AudioValueTranslation>();
+        let mut name: CFStringRef = ptr::null();
+        let mut trl = AudioValueTranslation {
+            mInputData: &mut source as *mut u32 as *mut c_void,
+            mInputDataSize: mem::size_of::<u32>() as u32,
+            mOutputData: &mut name as *mut CFStringRef as *mut c_void,
+            mOutputDataSize: mem::size_of::<CFStringRef>() as u32,
+        };
+        let status =
+            self.0
+                .get_property_data(&address, 0, ptr::null_mut::<c_void>(), &mut size, &mut trl);
+        if status == NO_ERR {
+            let s = StringRef::new(name);
+            let utf8 = s.to_utf8();
+            Ok(String::from_utf8_lossy(&utf8).to_string())
         } else {
             Err(status)
         }

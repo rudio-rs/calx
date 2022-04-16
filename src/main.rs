@@ -31,6 +31,7 @@ fn main() {
                             \tsample rate: {}\n\
                             \tsample rate ranges: {}\n\
                             \tsource: {}\n\
+                            \tsource name: {}\n\
                             \ttransport type: {}\n\
                             \tuid:\n\
                                 \t\t{} - {}\n\
@@ -66,6 +67,9 @@ fn main() {
                             device
                                 .source(&s)
                                 .map_or_else(|e| format!("Error: {}", e), u32_to_string),
+                            device
+                                .source_name(&s)
+                                .map_or_else(|e| format!("Error: {}", e), |n| n),
                             device
                                 .transport_type(&s)
                                 .map_or_else(|e| format!("Error: {}", e), |t| t.to_string()),
