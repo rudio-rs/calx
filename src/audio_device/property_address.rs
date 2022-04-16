@@ -1,13 +1,14 @@
 use coreaudio_sys::{
     kAudioDevicePropertyAvailableNominalSampleRates, kAudioDevicePropertyBufferFrameSizeRange,
     kAudioDevicePropertyClockDomain, kAudioDevicePropertyDataSource, kAudioDevicePropertyDeviceUID,
-    kAudioDevicePropertyLatency, kAudioDevicePropertyNominalSampleRate,
-    kAudioDevicePropertyStreamConfiguration, kAudioDevicePropertyStreams,
-    kAudioDevicePropertyTransportType, kAudioHardwarePropertyDefaultInputDevice,
-    kAudioHardwarePropertyDefaultOutputDevice, kAudioHardwarePropertyDevices,
-    kAudioObjectPropertyElementMaster, kAudioObjectPropertyScopeGlobal,
-    kAudioObjectPropertyScopeInput, kAudioObjectPropertyScopeOutput, AudioObjectPropertyAddress,
-    AudioObjectPropertyScope, AudioObjectPropertySelector,
+    kAudioDevicePropertyLatency, kAudioDevicePropertyModelUID,
+    kAudioDevicePropertyNominalSampleRate, kAudioDevicePropertyStreamConfiguration,
+    kAudioDevicePropertyStreams, kAudioDevicePropertyTransportType,
+    kAudioHardwarePropertyDefaultInputDevice, kAudioHardwarePropertyDefaultOutputDevice,
+    kAudioHardwarePropertyDevices, kAudioObjectPropertyElementMaster,
+    kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyScopeInput,
+    kAudioObjectPropertyScopeOutput, AudioObjectPropertyAddress, AudioObjectPropertyScope,
+    AudioObjectPropertySelector,
 };
 
 pub enum Property {
@@ -16,6 +17,7 @@ pub enum Property {
     Devices,
     ClockDomain,
     DeviceBufferFrameSizeRange,
+    DeviceModelUID,
     DeviceLatency,
     DeviceSampleRate,
     DeviceSampleRates,
@@ -36,6 +38,7 @@ impl From<Property> for AudioObjectPropertySelector {
             // kAudioDeviceProperty*
             Property::ClockDomain => kAudioDevicePropertyClockDomain,
             Property::DeviceBufferFrameSizeRange => kAudioDevicePropertyBufferFrameSizeRange,
+            Property::DeviceModelUID => kAudioDevicePropertyModelUID,
             Property::DeviceLatency => kAudioDevicePropertyLatency,
             Property::DeviceSampleRate => kAudioDevicePropertyNominalSampleRate,
             Property::DeviceSampleRates => kAudioDevicePropertyAvailableNominalSampleRates,
