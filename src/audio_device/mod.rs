@@ -298,10 +298,9 @@ impl Device {
         }
 
         let element_size = mem::size_of::<AudioStreamID>();
-        assert_eq!(element_size, mem::size_of::<AudioObjectID>());
         assert_eq!(size % element_size, 0);
         let elements = size / element_size;
-        let mut buffer = vec![kAudioObjectUnknown; elements];
+        let mut buffer = vec![AudioStreamID::default(); elements];
 
         let status = self.0.get_property_data(
             &address,
