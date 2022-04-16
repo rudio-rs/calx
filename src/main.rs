@@ -20,7 +20,21 @@ fn main() {
                 for device in devices.iter() {
                     if device.in_scope(&s).unwrap_or(false) {
                         println!(
-                            "id: {}\n\tbuffer frame size range: {}\n\tchannel count: {}\n\tclock domain: {}\n\tlatency: {}\n\tmodel uid:\n\t\t{} - {}\n\t\tglobal - {}\n\tsample rate: {}\n\tsample rate ranges: {}\n\tsource: {}\n\ttransport type: {}\n\tuid:\n\t\t{} - {}\n\t\tglobal - {}",
+                            "id: {}\n\
+                            \tbuffer frame size range: {}\n\
+                            \tchannel count: {}\n\
+                            \tclock domain: {}\n\
+                            \tlatency: {}\n\
+                            \tmodel uid:\n\
+                                \t\t{} - {}\n\
+                                \t\tglobal - {}\n\
+                            \tsample rate: {}\n\
+                            \tsample rate ranges: {}\n\
+                            \tsource: {}\n\
+                            \ttransport type: {}\n\
+                            \tuid:\n\
+                                \t\t{} - {}\n\
+                                \t\tglobal - {}",
                             device.id(),
                             device.buffer_frame_size_range(&s).map_or_else(
                                 |e| format!("Error: {}", e),
@@ -29,23 +43,26 @@ fn main() {
                             device
                                 .channel_count(&s)
                                 .map_or_else(|e| format!("Error: {}", e), |c| c.to_string()),
-                                device
+                            device
                                 .clock_domain(&s)
                                 .map_or_else(|e| format!("Error: {}", e), |d| d.to_string()),
                             device
                                 .latency(&s)
                                 .map_or_else(|e| format!("Error: {}", e), |l| l.to_string()),
-                                s,
-                                device
-                                .model_uid(Some(&s)).map_or_else(|e| format!("Error: {}", e), |u| u),
-                                device
-                                .model_uid(None).map_or_else(|e| format!("Error: {}", e), |u| u),
+                            s,
+                            device
+                                .model_uid(Some(&s))
+                                .map_or_else(|e| format!("Error: {}", e), |u| u),
+                            device
+                                .model_uid(None)
+                                .map_or_else(|e| format!("Error: {}", e), |u| u),
                             device
                                 .sample_rate(&s)
                                 .map_or_else(|e| format!("Error: {}", e), |r| r.to_string()),
-                            device
-                                .sample_rate_ranges(&s)
-                                .map_or_else(|e| format!("Error: {}", e), |ranges| format!("{:?}", ranges)),
+                            device.sample_rate_ranges(&s).map_or_else(
+                                |e| format!("Error: {}", e),
+                                |ranges| format!("{:?}", ranges)
+                            ),
                             device
                                 .source(&s)
                                 .map_or_else(|e| format!("Error: {}", e), u32_to_string),
