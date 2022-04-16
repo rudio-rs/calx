@@ -170,6 +170,20 @@ impl Device {
         }
     }
 
+    pub fn sample_rate(&self, s: &Side) -> Result<f64, OSStatus> {
+        let address = get_property_address(Property::DeviceSampleRate, Scope::from(s));
+        let mut rate = 0f64;
+        let mut size = mem::size_of::<f64>();
+        let status =
+            self.0
+                .get_property_data(&address, 0, ptr::null_mut::<c_void>(), &mut size, &mut rate);
+        if status == NO_ERR {
+            Ok(rate)
+        } else {
+            Err(status)
+        }
+    }
+
     pub fn source(&self, s: &Side) -> Result<u32, OSStatus> {
         let address = get_property_address(Property::DeviceSource, Scope::from(s));
         let mut source = 0u32;
