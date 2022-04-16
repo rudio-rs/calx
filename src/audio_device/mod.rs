@@ -125,15 +125,6 @@ impl Device {
         Ok(streams > 0)
     }
 
-    pub fn channel_count(&self, s: &Side) -> Result<u32, OSStatus> {
-        let buffers = self.stream_configuration(s)?;
-        let mut count = 0;
-        for buffer in buffers {
-            count += buffer.mNumberChannels;
-        }
-        Ok(count)
-    }
-
     pub fn buffer_frame_size_range(&self, s: &Side) -> Result<(f64, f64), OSStatus> {
         let address = get_property_address(Property::DeviceBufferFrameSizeRange, Scope::from(s));
         let mut range = AudioValueRange::default();
@@ -150,6 +141,15 @@ impl Device {
         } else {
             Err(status)
         }
+    }
+
+    pub fn channel_count(&self, s: &Side) -> Result<u32, OSStatus> {
+        let buffers = self.stream_configuration(s)?;
+        let mut count = 0;
+        for buffer in buffers {
+            count += buffer.mNumberChannels;
+        }
+        Ok(count)
     }
 
     pub fn source(&self, s: &Side) -> Result<u32, OSStatus> {
