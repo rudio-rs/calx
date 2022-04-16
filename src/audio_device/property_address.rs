@@ -10,7 +10,6 @@ use coreaudio_sys::{
     AudioObjectPropertySelector,
 };
 
-#[derive(Debug)]
 pub enum Property {
     DefaultInputDevice,
     DefaultOutputDevice,
