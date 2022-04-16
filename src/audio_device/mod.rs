@@ -6,7 +6,7 @@ use coreaudio_sys::{
     kAudioObjectSystemObject, kAudioObjectUnknown, noErr, AudioBuffer, AudioBufferList,
     AudioObjectID, AudioStreamID, OSStatus,
 };
-use property_address::{get_property_address, Property, PropertyScope};
+use property_address::{get_property_address, Property, Scope};
 use std::mem;
 use std::os::raw::c_void;
 use std::ptr;
@@ -14,29 +14,29 @@ use std::slice;
 
 const NO_ERR: OSStatus = noErr as OSStatus;
 
-pub enum Scope {
+pub enum Side {
     Input,
     Output,
 }
 
-impl std::fmt::Display for Scope {
+impl std::fmt::Display for Side {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
             "{}",
             match self {
-                Scope::Input => "input",
-                Scope::Output => "output",
+                Side::Input => "input",
+                Side::Output => "output",
             }
         )
     }
 }
 
-impl From<&Scope> for PropertyScope {
-    fn from(scope: &Scope) -> Self {
-        match scope {
-            Scope::Input => PropertyScope::Input,
-            Scope::Output => PropertyScope::Output,
+impl From<&Side> for Scope {
+    fn from(s: &Side) -> Self {
+        match s {
+            Side::Input => Scope::Input,
+            Side::Output => Scope::Output,
         }
     }
 }
@@ -44,13 +44,13 @@ impl From<&Scope> for PropertyScope {
 pub struct SystemDevice(AudioObject);
 
 impl SystemDevice {
-    pub fn get_default_device(&self, scope: &Scope) -> Result<Device, OSStatus> {
+    pub fn get_default_device(&self, s: &Side) -> Result<Device, OSStatus> {
         let address = get_property_address(
-            match scope {
-                Scope::Input => Property::DefaultInputDevice,
-                Scope::Output => Property::DefaultOutputDevice,
+            match s {
+                Side::Input => Property::DefaultInputDevice,
+                Side::Output => Property::DefaultOutputDevice,
             },
-            PropertyScope::Global,
+            Scope::Global,
         );
         let mut device = kAudioObjectUnknown;
         let mut size = mem::size_of::<AudioObjectID>();
@@ -69,7 +69,7 @@ impl SystemDevice {
     }
 
     pub fn get_all_devices(&self) -> Result<Vec<Device>, OSStatus> {
-        let address = get_property_address(Property::Devices, PropertyScope::Global);
+        let address = get_property_address(Property::Devices, Scope::Global);
 
         let mut size = 0;
         let status =
@@ -120,13 +120,31 @@ impl Device {
         self.id() != kAudioObjectUnknown
     }
 
-    pub fn in_scope(&self, scope: &Scope) -> Result<bool, OSStatus> {
-        let streams = self.number_of_streams(scope)?;
+    pub fn in_scope(&self, s: &Side) -> Result<bool, OSStatus> {
+        let streams = self.number_of_streams(s)?;
         Ok(streams > 0)
     }
 
-    pub fn channel_count(&self, scope: &Scope) -> Result<u32, OSStatus> {
-        let buffers = self.stream_configuration(scope)?;
+    pub fn transport_type(&self, s: &Side) -> Result<u32, OSStatus> {
+        let address = get_property_address(Property::TransportType, Scope::from(s));
+        let mut transport = 0u32;
+        let mut size = mem::size_of::<u32>();
+        let status = self.0.get_property_data(
+            &address,
+            0,
+            ptr::null_mut::<c_void>(),
+            &mut size,
+            &mut transport,
+        );
+        if status == NO_ERR {
+            Ok(transport)
+        } else {
+            Err(status)
+        }
+    }
+
+    pub fn channel_count(&self, s: &Side) -> Result<u32, OSStatus> {
+        let buffers = self.stream_configuration(s)?;
         let mut count = 0;
         for buffer in buffers {
             count += buffer.mNumberChannels;
@@ -134,11 +152,8 @@ impl Device {
         Ok(count)
     }
 
-    fn stream_configuration(&self, scope: &Scope) -> Result<Vec<AudioBuffer>, OSStatus> {
-        let address = get_property_address(
-            Property::DeviceStreamConfiguration,
-            PropertyScope::from(scope),
-        );
+    fn stream_configuration(&self, s: &Side) -> Result<Vec<AudioBuffer>, OSStatus> {
+        let address = get_property_address(Property::DeviceStreamConfiguration, Scope::from(s));
 
         let mut size = 0;
         let status =
@@ -170,8 +185,8 @@ impl Device {
         }
     }
 
-    fn number_of_streams(&self, scope: &Scope) -> Result<usize, OSStatus> {
-        let address = get_property_address(Property::DeviceStreams, PropertyScope::from(scope));
+    fn number_of_streams(&self, s: &Side) -> Result<usize, OSStatus> {
+        let address = get_property_address(Property::DeviceStreams, Scope::from(s));
 
         let mut size = 0;
         let status =

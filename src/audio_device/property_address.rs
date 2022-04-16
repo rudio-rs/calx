@@ -1,10 +1,10 @@
 use coreaudio_sys::{
     kAudioDevicePropertyStreamConfiguration, kAudioDevicePropertyStreams,
-    kAudioHardwarePropertyDefaultInputDevice, kAudioHardwarePropertyDefaultOutputDevice,
-    kAudioHardwarePropertyDevices, kAudioObjectPropertyElementMaster,
-    kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyScopeInput,
-    kAudioObjectPropertyScopeOutput, AudioObjectPropertyAddress, AudioObjectPropertyScope,
-    AudioObjectPropertySelector,
+    kAudioDevicePropertyTransportType, kAudioHardwarePropertyDefaultInputDevice,
+    kAudioHardwarePropertyDefaultOutputDevice, kAudioHardwarePropertyDevices,
+    kAudioObjectPropertyElementMaster, kAudioObjectPropertyScopeGlobal,
+    kAudioObjectPropertyScopeInput, kAudioObjectPropertyScopeOutput, AudioObjectPropertyAddress,
+    AudioObjectPropertyScope, AudioObjectPropertySelector,
 };
 
 #[derive(Debug)]
@@ -14,6 +14,7 @@ pub enum Property {
     Devices,
     DeviceStreamConfiguration,
     DeviceStreams,
+    TransportType,
 }
 
 impl From<Property> for AudioObjectPropertySelector {
@@ -24,31 +25,28 @@ impl From<Property> for AudioObjectPropertySelector {
             Property::Devices => kAudioHardwarePropertyDevices,
             Property::DeviceStreamConfiguration => kAudioDevicePropertyStreamConfiguration,
             Property::DeviceStreams => kAudioDevicePropertyStreams,
+            Property::TransportType => kAudioDevicePropertyTransportType,
         }
     }
 }
 
-#[derive(Debug)]
-pub enum PropertyScope {
+pub enum Scope {
     Global,
     Input,
     Output,
 }
 
-impl From<PropertyScope> for AudioObjectPropertyScope {
-    fn from(scope: PropertyScope) -> Self {
+impl From<Scope> for AudioObjectPropertyScope {
+    fn from(scope: Scope) -> Self {
         match scope {
-            PropertyScope::Global => kAudioObjectPropertyScopeGlobal,
-            PropertyScope::Input => kAudioObjectPropertyScopeInput,
-            PropertyScope::Output => kAudioObjectPropertyScopeOutput,
+            Scope::Global => kAudioObjectPropertyScopeGlobal,
+            Scope::Input => kAudioObjectPropertyScopeInput,
+            Scope::Output => kAudioObjectPropertyScopeOutput,
         }
     }
 }
 
-pub fn get_property_address(
-    property: Property,
-    scope: PropertyScope,
-) -> AudioObjectPropertyAddress {
+pub fn get_property_address(property: Property, scope: Scope) -> AudioObjectPropertyAddress {
     AudioObjectPropertyAddress {
         mSelector: AudioObjectPropertySelector::from(property),
         mScope: AudioObjectPropertyScope::from(scope),
