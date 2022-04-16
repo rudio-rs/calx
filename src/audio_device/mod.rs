@@ -152,6 +152,24 @@ impl Device {
         Ok(count)
     }
 
+    pub fn source(&self, s: &Side) -> Result<u32, OSStatus> {
+        let address = get_property_address(Property::DeviceSource, Scope::from(s));
+        let mut source = 0u32;
+        let mut size = mem::size_of::<u32>();
+        let status = self.0.get_property_data(
+            &address,
+            0,
+            ptr::null_mut::<c_void>(),
+            &mut size,
+            &mut source,
+        );
+        if status == NO_ERR {
+            Ok(source)
+        } else {
+            Err(status)
+        }
+    }
+
     fn stream_configuration(&self, s: &Side) -> Result<Vec<AudioBuffer>, OSStatus> {
         let address = get_property_address(Property::DeviceStreamConfiguration, Scope::from(s));
 

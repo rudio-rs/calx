@@ -1,10 +1,11 @@
 use coreaudio_sys::{
-    kAudioDevicePropertyStreamConfiguration, kAudioDevicePropertyStreams,
-    kAudioDevicePropertyTransportType, kAudioHardwarePropertyDefaultInputDevice,
-    kAudioHardwarePropertyDefaultOutputDevice, kAudioHardwarePropertyDevices,
-    kAudioObjectPropertyElementMaster, kAudioObjectPropertyScopeGlobal,
-    kAudioObjectPropertyScopeInput, kAudioObjectPropertyScopeOutput, AudioObjectPropertyAddress,
-    AudioObjectPropertyScope, AudioObjectPropertySelector,
+    kAudioDevicePropertyDataSource, kAudioDevicePropertyStreamConfiguration,
+    kAudioDevicePropertyStreams, kAudioDevicePropertyTransportType,
+    kAudioHardwarePropertyDefaultInputDevice, kAudioHardwarePropertyDefaultOutputDevice,
+    kAudioHardwarePropertyDevices, kAudioObjectPropertyElementMaster,
+    kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyScopeInput,
+    kAudioObjectPropertyScopeOutput, AudioObjectPropertyAddress, AudioObjectPropertyScope,
+    AudioObjectPropertySelector,
 };
 
 #[derive(Debug)]
@@ -12,6 +13,7 @@ pub enum Property {
     DefaultInputDevice,
     DefaultOutputDevice,
     Devices,
+    DeviceSource,
     DeviceStreamConfiguration,
     DeviceStreams,
     TransportType,
@@ -23,6 +25,7 @@ impl From<Property> for AudioObjectPropertySelector {
             Property::DefaultInputDevice => kAudioHardwarePropertyDefaultInputDevice,
             Property::DefaultOutputDevice => kAudioHardwarePropertyDefaultOutputDevice,
             Property::Devices => kAudioHardwarePropertyDevices,
+            Property::DeviceSource => kAudioDevicePropertyDataSource,
             Property::DeviceStreamConfiguration => kAudioDevicePropertyStreamConfiguration,
             Property::DeviceStreams => kAudioDevicePropertyStreams,
             Property::TransportType => kAudioDevicePropertyTransportType,
