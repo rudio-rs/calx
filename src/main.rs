@@ -20,7 +20,7 @@ fn main() {
                 for device in devices.iter() {
                     if device.in_scope(&s).unwrap_or(false) {
                         println!(
-                            "id: {}\n\tbuffer frame size range: {}\n\tchannel count: {}\n\tclock domain: {}\n\tlatency: {}\n\tmodel uid:\n\t\t{} - {}\n\t\tglobal - {}\n\tsample rate: {}\n\tsample rate ranges: {}\n\tsource: {}\n\ttransport type: {}\n\tuid:\n\t\t({}) {}\n\t\t(global) {}",
+                            "id: {}\n\tbuffer frame size range: {}\n\tchannel count: {}\n\tclock domain: {}\n\tlatency: {}\n\tmodel uid:\n\t\t{} - {}\n\t\tglobal - {}\n\tsample rate: {}\n\tsample rate ranges: {}\n\tsource: {}\n\ttransport type: {}\n\tuid:\n\t\t{} - {}\n\t\tglobal - {}",
                             device.id(),
                             device.buffer_frame_size_range(&s).map_or_else(
                                 |e| format!("Error: {}", e),
