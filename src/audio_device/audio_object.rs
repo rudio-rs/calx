@@ -33,6 +33,21 @@ impl AudioObject {
         )
     }
 
+    pub fn get_property_data_without_qualifier<D>(
+        &self,
+        address: &AudioObjectPropertyAddress,
+        io_data_size: *mut usize,
+        out_data: *mut D,
+    ) -> OSStatus {
+        self.get_property_data(
+            address,
+            0,
+            std::ptr::null_mut::<c_void>(),
+            io_data_size,
+            out_data,
+        )
+    }
+
     pub fn get_property_data_size<Q>(
         &self,
         address: &AudioObjectPropertyAddress,
@@ -47,6 +62,14 @@ impl AudioObject {
             in_qualifier_data,
             out_data_size,
         )
+    }
+
+    pub fn get_property_data_size_without_qualifier(
+        &self,
+        address: &AudioObjectPropertyAddress,
+        out_data_size: *mut usize,
+    ) -> OSStatus {
+        self.get_property_data_size(address, 0, std::ptr::null_mut::<c_void>(), out_data_size)
     }
 }
 

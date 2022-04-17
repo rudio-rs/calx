@@ -57,13 +57,9 @@ impl SystemDevice {
         );
         let mut device = kAudioObjectUnknown;
         let mut size = mem::size_of::<AudioObjectID>();
-        let status = self.0.get_property_data(
-            &address,
-            0,
-            ptr::null_mut::<c_void>(),
-            &mut size,
-            &mut device,
-        );
+        let status = self
+            .0
+            .get_property_data_without_qualifier(&address, &mut size, &mut device);
         if status == NO_ERR {
             Ok(Device::new(device))
         } else {
@@ -75,9 +71,9 @@ impl SystemDevice {
         let address = get_property_address(Property::Devices, Scope::Global);
 
         let mut size = 0;
-        let status =
-            self.0
-                .get_property_data_size(&address, 0, ptr::null_mut::<c_void>(), &mut size);
+        let status = self
+            .0
+            .get_property_data_size_without_qualifier(&address, &mut size);
         if status != NO_ERR {
             return Err(status);
         }
@@ -87,13 +83,9 @@ impl SystemDevice {
         let elements = size / element_size;
         let mut buffer = vec![kAudioObjectUnknown; elements];
 
-        let status = self.0.get_property_data(
-            &address,
-            0,
-            ptr::null_mut::<c_void>(),
-            &mut size,
-            buffer.as_mut_ptr(),
-        );
+        let status =
+            self.0
+                .get_property_data_without_qualifier(&address, &mut size, buffer.as_mut_ptr());
         if status == NO_ERR {
             Ok(buffer.into_iter().map(Device::new).collect())
         } else {
@@ -141,13 +133,9 @@ impl Device {
         let address = get_property_address(Property::DeviceBufferFrameSizeRange, Scope::from(s));
         let mut range = AudioValueRange::default();
         let mut size = mem::size_of::<AudioValueRange>();
-        let status = self.0.get_property_data(
-            &address,
-            0,
-            ptr::null_mut::<c_void>(),
-            &mut size,
-            &mut range,
-        );
+        let status = self
+            .0
+            .get_property_data_without_qualifier(&address, &mut size, &mut range);
         if status == NO_ERR {
             Ok((range.mMinimum, range.mMaximum))
         } else {
@@ -168,13 +156,9 @@ impl Device {
         let address = get_property_address(Property::ClockDomain, Scope::from(s));
         let mut domain = 0u32;
         let mut size = mem::size_of::<u32>();
-        let status = self.0.get_property_data(
-            &address,
-            0,
-            ptr::null_mut::<c_void>(),
-            &mut size,
-            &mut domain,
-        );
+        let status = self
+            .0
+            .get_property_data_without_qualifier(&address, &mut size, &mut domain);
         if status == NO_ERR {
             Ok(domain)
         } else {
@@ -186,13 +170,9 @@ impl Device {
         let address = get_property_address(Property::DeviceLatency, Scope::from(s));
         let mut latency = 0u32;
         let mut size = mem::size_of::<u32>();
-        let status = self.0.get_property_data(
-            &address,
-            0,
-            ptr::null_mut::<c_void>(),
-            &mut size,
-            &mut latency,
-        );
+        let status = self
+            .0
+            .get_property_data_without_qualifier(&address, &mut size, &mut latency);
         if status == NO_ERR {
             Ok(latency)
         } else {
@@ -212,9 +192,9 @@ impl Device {
 
         let mut size = mem::size_of::<CFStringRef>();
         let mut uid: CFStringRef = ptr::null();
-        let status =
-            self.0
-                .get_property_data(&address, 0, ptr::null_mut::<c_void>(), &mut size, &mut uid);
+        let status = self
+            .0
+            .get_property_data_without_qualifier(&address, &mut size, &mut uid);
         if status == NO_ERR {
             let s = StringRef::new(uid);
             let utf8 = s.to_utf8();
@@ -236,9 +216,9 @@ impl Device {
 
         let mut size = mem::size_of::<CFStringRef>();
         let mut uid: CFStringRef = ptr::null();
-        let status =
-            self.0
-                .get_property_data(&address, 0, ptr::null_mut::<c_void>(), &mut size, &mut uid);
+        let status = self
+            .0
+            .get_property_data_without_qualifier(&address, &mut size, &mut uid);
         if status == NO_ERR {
             let s = StringRef::new(uid);
             let utf8 = s.to_utf8();
@@ -252,9 +232,9 @@ impl Device {
         let address = get_property_address(Property::DeviceSampleRate, Scope::from(s));
         let mut rate = 0f64;
         let mut size = mem::size_of::<f64>();
-        let status =
-            self.0
-                .get_property_data(&address, 0, ptr::null_mut::<c_void>(), &mut size, &mut rate);
+        let status = self
+            .0
+            .get_property_data_without_qualifier(&address, &mut size, &mut rate);
         if status == NO_ERR {
             Ok(rate)
         } else {
@@ -266,9 +246,9 @@ impl Device {
         let address = get_property_address(Property::DeviceSampleRates, Scope::from(s));
 
         let mut size = 0;
-        let status =
-            self.0
-                .get_property_data_size(&address, 0, ptr::null_mut::<c_void>(), &mut size);
+        let status = self
+            .0
+            .get_property_data_size_without_qualifier(&address, &mut size);
         if status != NO_ERR {
             return Err(status);
         }
@@ -278,13 +258,9 @@ impl Device {
         let elements = size / element_size;
         let mut buffer = vec![AudioValueRange::default(); elements];
 
-        let status = self.0.get_property_data(
-            &address,
-            0,
-            ptr::null_mut::<c_void>(),
-            &mut size,
-            buffer.as_mut_ptr(),
-        );
+        let status =
+            self.0
+                .get_property_data_without_qualifier(&address, &mut size, buffer.as_mut_ptr());
         if status == NO_ERR {
             Ok(buffer
                 .into_iter()
@@ -299,13 +275,9 @@ impl Device {
         let address = get_property_address(Property::DeviceSource, Scope::from(s));
         let mut source = 0u32;
         let mut size = mem::size_of::<u32>();
-        let status = self.0.get_property_data(
-            &address,
-            0,
-            ptr::null_mut::<c_void>(),
-            &mut size,
-            &mut source,
-        );
+        let status = self
+            .0
+            .get_property_data_without_qualifier(&address, &mut size, &mut source);
         if status == NO_ERR {
             Ok(source)
         } else {
@@ -324,9 +296,9 @@ impl Device {
             mOutputData: &mut name as *mut CFStringRef as *mut c_void,
             mOutputDataSize: mem::size_of::<CFStringRef>() as u32,
         };
-        let status =
-            self.0
-                .get_property_data(&address, 0, ptr::null_mut::<c_void>(), &mut size, &mut trl);
+        let status = self
+            .0
+            .get_property_data_without_qualifier(&address, &mut size, &mut trl);
         if status == NO_ERR {
             let s = StringRef::new(name);
             let utf8 = s.to_utf8();
@@ -340,13 +312,9 @@ impl Device {
         let address = get_property_address(Property::TransportType, Scope::from(s));
         let mut transport = 0u32;
         let mut size = mem::size_of::<u32>();
-        let status = self.0.get_property_data(
-            &address,
-            0,
-            ptr::null_mut::<c_void>(),
-            &mut size,
-            &mut transport,
-        );
+        let status =
+            self.0
+                .get_property_data_without_qualifier(&address, &mut size, &mut transport);
         if status == NO_ERR {
             Ok(transport)
         } else {
@@ -366,9 +334,9 @@ impl Device {
 
         let mut size = mem::size_of::<CFStringRef>();
         let mut uid: CFStringRef = ptr::null();
-        let status =
-            self.0
-                .get_property_data(&address, 0, ptr::null_mut::<c_void>(), &mut size, &mut uid);
+        let status = self
+            .0
+            .get_property_data_without_qualifier(&address, &mut size, &mut uid);
         if status == NO_ERR {
             let s = StringRef::new(uid);
             let utf8 = s.to_utf8();
@@ -382,21 +350,17 @@ impl Device {
         let address = get_property_address(Property::DeviceStreamConfiguration, Scope::from(s));
 
         let mut size = 0;
-        let status =
-            self.0
-                .get_property_data_size(&address, 0, ptr::null_mut::<c_void>(), &mut size);
+        let status = self
+            .0
+            .get_property_data_size_without_qualifier(&address, &mut size);
         if status != NO_ERR {
             return Err(status);
         }
 
         let mut buffer = vec![0u8; size];
-        let status = self.0.get_property_data(
-            &address,
-            0,
-            ptr::null_mut::<c_void>(),
-            &mut size,
-            buffer.as_mut_ptr(),
-        );
+        let status =
+            self.0
+                .get_property_data_without_qualifier(&address, &mut size, buffer.as_mut_ptr());
         if status == NO_ERR {
             let list = unsafe { &*(buffer.as_mut_ptr() as *mut AudioBufferList) };
             let s = unsafe {
@@ -415,9 +379,9 @@ impl Device {
         let address = get_property_address(Property::DeviceStreams, Scope::from(s));
 
         let mut size = 0;
-        let status =
-            self.0
-                .get_property_data_size(&address, 0, ptr::null_mut::<c_void>(), &mut size);
+        let status = self
+            .0
+            .get_property_data_size_without_qualifier(&address, &mut size);
         if status != NO_ERR {
             return Err(status);
         }
@@ -427,13 +391,9 @@ impl Device {
         let elements = size / element_size;
         let mut buffer = vec![AudioStreamID::default(); elements];
 
-        let status = self.0.get_property_data(
-            &address,
-            0,
-            ptr::null_mut::<c_void>(),
-            &mut size,
-            buffer.as_mut_ptr(),
-        );
+        let status =
+            self.0
+                .get_property_data_without_qualifier(&address, &mut size, buffer.as_mut_ptr());
         if status == NO_ERR {
             Ok(buffer)
         } else {
