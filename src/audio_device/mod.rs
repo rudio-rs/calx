@@ -62,28 +62,9 @@ impl SystemDevice {
 
     pub fn get_all_devices(&self) -> Result<Vec<Device>, OSStatus> {
         let address = get_property_address(Property::Devices, Scope::Global);
-
-        let mut size = 0;
-        let status = self
-            .0
-            .get_property_data_size_without_qualifier(&address, &mut size);
-        if status != NO_ERR {
-            return Err(status);
-        }
-
-        let element_size = mem::size_of::<AudioObjectID>();
-        assert_eq!(size % element_size, 0);
-        let elements = size / element_size;
-        let mut buffer = vec![kAudioObjectUnknown; elements];
-
-        let status =
-            self.0
-                .get_property_data_without_qualifier(&address, &mut size, buffer.as_mut_ptr());
-        if status == NO_ERR {
-            Ok(buffer.into_iter().map(Device::new).collect())
-        } else {
-            Err(status)
-        }
+        self.0
+            .get_property_array_common::<AudioObjectID>(&address)
+            .map(|ids| ids.into_iter().map(Device::new).collect())
     }
 }
 
@@ -183,31 +164,14 @@ impl Device {
 
     pub fn sample_rate_ranges(&self, s: &Side) -> Result<Vec<(f64, f64)>, OSStatus> {
         let address = get_property_address(Property::DeviceSampleRates, Scope::from(s));
-
-        let mut size = 0;
-        let status = self
-            .0
-            .get_property_data_size_without_qualifier(&address, &mut size);
-        if status != NO_ERR {
-            return Err(status);
-        }
-
-        let element_size = mem::size_of::<AudioValueRange>();
-        assert_eq!(size % element_size, 0);
-        let elements = size / element_size;
-        let mut buffer = vec![AudioValueRange::default(); elements];
-
-        let status =
-            self.0
-                .get_property_data_without_qualifier(&address, &mut size, buffer.as_mut_ptr());
-        if status == NO_ERR {
-            Ok(buffer
-                .into_iter()
-                .map(|r| (r.mMinimum, r.mMaximum))
-                .collect())
-        } else {
-            Err(status)
-        }
+        self.0
+            .get_property_array_common::<AudioValueRange>(&address)
+            .map(|ranges| {
+                ranges
+                    .into_iter()
+                    .map(|r| (r.mMinimum, r.mMaximum))
+                    .collect()
+            })
     }
 
     pub fn source(&self, s: &Side) -> Result<u32, OSStatus> {
@@ -259,57 +223,20 @@ impl Device {
 
     fn stream_configuration(&self, s: &Side) -> Result<Vec<AudioBuffer>, OSStatus> {
         let address = get_property_address(Property::DeviceStreamConfiguration, Scope::from(s));
-
-        let mut size = 0;
-        let status = self
-            .0
-            .get_property_data_size_without_qualifier(&address, &mut size);
-        if status != NO_ERR {
-            return Err(status);
-        }
-
-        let mut buffer = vec![0u8; size];
-        let status =
-            self.0
-                .get_property_data_without_qualifier(&address, &mut size, buffer.as_mut_ptr());
-        if status == NO_ERR {
-            let list = unsafe { &*(buffer.as_mut_ptr() as *mut AudioBufferList) };
-            let s = unsafe {
-                slice::from_raw_parts(
-                    list.mBuffers.as_ptr() as *const AudioBuffer,
-                    list.mNumberBuffers as usize,
-                )
-            };
-            Ok(s.to_vec())
-        } else {
-            Err(status)
-        }
+        let buffer = self.0.get_property_array_common::<u8>(&address)?;
+        let list = unsafe { &*(buffer.as_ptr() as *mut AudioBufferList) };
+        let s = unsafe {
+            slice::from_raw_parts(
+                list.mBuffers.as_ptr() as *const AudioBuffer,
+                list.mNumberBuffers as usize,
+            )
+        };
+        Ok(s.to_vec())
     }
 
     fn streams(&self, s: &Side) -> Result<Vec<AudioStreamID>, OSStatus> {
         let address = get_property_address(Property::DeviceStreams, Scope::from(s));
-
-        let mut size = 0;
-        let status = self
-            .0
-            .get_property_data_size_without_qualifier(&address, &mut size);
-        if status != NO_ERR {
-            return Err(status);
-        }
-
-        let element_size = mem::size_of::<AudioStreamID>();
-        assert_eq!(size % element_size, 0);
-        let elements = size / element_size;
-        let mut buffer = vec![AudioStreamID::default(); elements];
-
-        let status =
-            self.0
-                .get_property_data_without_qualifier(&address, &mut size, buffer.as_mut_ptr());
-        if status == NO_ERR {
-            Ok(buffer)
-        } else {
-            Err(status)
-        }
+        self.0.get_property_array_common::<AudioStreamID>(&address)
     }
 }
 
