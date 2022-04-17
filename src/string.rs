@@ -65,3 +65,9 @@ impl Drop for StringRef {
         unsafe { CFRelease(self.0 as *mut c_void) };
     }
 }
+
+impl Default for StringRef {
+    fn default() -> Self {
+        Self(ptr::null())
+    }
+}

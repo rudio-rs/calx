@@ -55,16 +55,9 @@ impl SystemDevice {
             },
             Scope::Global,
         );
-        let mut device = kAudioObjectUnknown;
-        let mut size = mem::size_of::<AudioObjectID>();
-        let status = self
-            .0
-            .get_property_data_without_qualifier(&address, &mut size, &mut device);
-        if status == NO_ERR {
-            Ok(Device::new(device))
-        } else {
-            Err(status)
-        }
+        self.0
+            .get_property_data_common::<AudioObjectID>(&address)
+            .map(Device::new)
     }
 
     pub fn get_all_devices(&self) -> Result<Vec<Device>, OSStatus> {
@@ -131,16 +124,9 @@ impl Device {
 
     pub fn buffer_frame_size_range(&self, s: &Side) -> Result<(f64, f64), OSStatus> {
         let address = get_property_address(Property::DeviceBufferFrameSizeRange, Scope::from(s));
-        let mut range = AudioValueRange::default();
-        let mut size = mem::size_of::<AudioValueRange>();
-        let status = self
-            .0
-            .get_property_data_without_qualifier(&address, &mut size, &mut range);
-        if status == NO_ERR {
-            Ok((range.mMinimum, range.mMaximum))
-        } else {
-            Err(status)
-        }
+        self.0
+            .get_property_data_common::<AudioValueRange>(&address)
+            .map(|r| (r.mMinimum, r.mMaximum))
     }
 
     pub fn channel_count(&self, s: &Side) -> Result<u32, OSStatus> {
@@ -154,30 +140,12 @@ impl Device {
 
     pub fn clock_domain(&self, s: &Side) -> Result<u32, OSStatus> {
         let address = get_property_address(Property::ClockDomain, Scope::from(s));
-        let mut domain = 0u32;
-        let mut size = mem::size_of::<u32>();
-        let status = self
-            .0
-            .get_property_data_without_qualifier(&address, &mut size, &mut domain);
-        if status == NO_ERR {
-            Ok(domain)
-        } else {
-            Err(status)
-        }
+        self.0.get_property_data_common::<u32>(&address)
     }
 
     pub fn latency(&self, s: &Side) -> Result<u32, OSStatus> {
         let address = get_property_address(Property::DeviceLatency, Scope::from(s));
-        let mut latency = 0u32;
-        let mut size = mem::size_of::<u32>();
-        let status = self
-            .0
-            .get_property_data_without_qualifier(&address, &mut size, &mut latency);
-        if status == NO_ERR {
-            Ok(latency)
-        } else {
-            Err(status)
-        }
+        self.0.get_property_data_common::<u32>(&address)
     }
 
     pub fn model_uid(&self, s: Option<&Side>) -> Result<String, OSStatus> {
@@ -189,19 +157,9 @@ impl Device {
                 Scope::Global
             },
         );
-
-        let mut size = mem::size_of::<CFStringRef>();
-        let mut uid: CFStringRef = ptr::null();
-        let status = self
-            .0
-            .get_property_data_without_qualifier(&address, &mut size, &mut uid);
-        if status == NO_ERR {
-            let s = StringRef::new(uid);
-            let utf8 = s.to_utf8();
-            Ok(String::from_utf8_lossy(&utf8).to_string())
-        } else {
-            Err(status)
-        }
+        self.0
+            .get_property_data_common::<StringRef>(&address)
+            .map(|s| String::from_utf8_lossy(&s.to_utf8()).to_string())
     }
 
     pub fn name(&self, s: Option<&Side>) -> Result<String, OSStatus> {
@@ -213,33 +171,14 @@ impl Device {
                 Scope::Global
             },
         );
-
-        let mut size = mem::size_of::<CFStringRef>();
-        let mut uid: CFStringRef = ptr::null();
-        let status = self
-            .0
-            .get_property_data_without_qualifier(&address, &mut size, &mut uid);
-        if status == NO_ERR {
-            let s = StringRef::new(uid);
-            let utf8 = s.to_utf8();
-            Ok(String::from_utf8_lossy(&utf8).to_string())
-        } else {
-            Err(status)
-        }
+        self.0
+            .get_property_data_common::<StringRef>(&address)
+            .map(|s| String::from_utf8_lossy(&s.to_utf8()).to_string())
     }
 
     pub fn sample_rate(&self, s: &Side) -> Result<f64, OSStatus> {
         let address = get_property_address(Property::DeviceSampleRate, Scope::from(s));
-        let mut rate = 0f64;
-        let mut size = mem::size_of::<f64>();
-        let status = self
-            .0
-            .get_property_data_without_qualifier(&address, &mut size, &mut rate);
-        if status == NO_ERR {
-            Ok(rate)
-        } else {
-            Err(status)
-        }
+        self.0.get_property_data_common::<f64>(&address)
     }
 
     pub fn sample_rate_ranges(&self, s: &Side) -> Result<Vec<(f64, f64)>, OSStatus> {
@@ -273,16 +212,7 @@ impl Device {
 
     pub fn source(&self, s: &Side) -> Result<u32, OSStatus> {
         let address = get_property_address(Property::DeviceSource, Scope::from(s));
-        let mut source = 0u32;
-        let mut size = mem::size_of::<u32>();
-        let status = self
-            .0
-            .get_property_data_without_qualifier(&address, &mut size, &mut source);
-        if status == NO_ERR {
-            Ok(source)
-        } else {
-            Err(status)
-        }
+        self.0.get_property_data_common::<u32>(&address)
     }
 
     pub fn source_name(&self, s: &Side) -> Result<String, OSStatus> {
@@ -310,16 +240,7 @@ impl Device {
 
     pub fn transport_type(&self, s: &Side) -> Result<u32, OSStatus> {
         let address = get_property_address(Property::TransportType, Scope::from(s));
-        let mut transport = 0u32;
-        let mut size = mem::size_of::<u32>();
-        let status =
-            self.0
-                .get_property_data_without_qualifier(&address, &mut size, &mut transport);
-        if status == NO_ERR {
-            Ok(transport)
-        } else {
-            Err(status)
-        }
+        self.0.get_property_data_common::<u32>(&address)
     }
 
     pub fn uid(&self, s: Option<&Side>) -> Result<String, OSStatus> {
@@ -331,19 +252,9 @@ impl Device {
                 Scope::Global
             },
         );
-
-        let mut size = mem::size_of::<CFStringRef>();
-        let mut uid: CFStringRef = ptr::null();
-        let status = self
-            .0
-            .get_property_data_without_qualifier(&address, &mut size, &mut uid);
-        if status == NO_ERR {
-            let s = StringRef::new(uid);
-            let utf8 = s.to_utf8();
-            Ok(String::from_utf8_lossy(&utf8).to_string())
-        } else {
-            Err(status)
-        }
+        self.0
+            .get_property_data_common::<StringRef>(&address)
+            .map(|s| String::from_utf8_lossy(&s.to_utf8()).to_string())
     }
 
     fn stream_configuration(&self, s: &Side) -> Result<Vec<AudioBuffer>, OSStatus> {

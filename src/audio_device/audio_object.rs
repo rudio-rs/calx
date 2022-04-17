@@ -1,5 +1,5 @@
 use coreaudio_sys::{
-    /*noErr, */ AudioObjectGetPropertyData, AudioObjectGetPropertyDataSize, AudioObjectID,
+    noErr, AudioObjectGetPropertyData, AudioObjectGetPropertyDataSize, AudioObjectID,
     AudioObjectPropertyAddress, OSStatus, UInt32,
 };
 use std::mem;
@@ -46,6 +46,21 @@ impl AudioObject {
             io_data_size,
             out_data,
         )
+    }
+
+    pub fn get_property_data_common<D: Default + Sized>(
+        &self,
+        address: &AudioObjectPropertyAddress,
+    ) -> Result<D, OSStatus> {
+        const NO_ERR: OSStatus = noErr as OSStatus;
+        let mut data = D::default();
+        let mut size = mem::size_of::<D>();
+        let status = self.get_property_data_without_qualifier(address, &mut size, &mut data);
+        if status == NO_ERR {
+            Ok(data)
+        } else {
+            Err(status)
+        }
     }
 
     pub fn get_property_data_size<Q>(
