@@ -129,6 +129,13 @@ impl Device {
         self.0.get_property_data_common::<u32>(&address)
     }
 
+    pub fn manufacturer(&self, s: &Side) -> Result<String, OSStatus> {
+        let address = get_property_address(Property::DeviceManufacturer, Scope::from(s));
+        self.0
+            .get_property_data_common::<StringRef>(&address)
+            .map(|s| String::from_utf8_lossy(&s.to_utf8()).to_string())
+    }
+
     pub fn model_uid(&self, s: Option<&Side>) -> Result<String, OSStatus> {
         let address = get_property_address(
             Property::DeviceModelUID,

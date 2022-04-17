@@ -25,6 +25,7 @@ fn main() {
                             \tchannel count: {}\n\
                             \tclock domain: {}\n\
                             \tlatency: {}\n\
+                            \tmanufacturer: {}\n\
                             \tmodel uid:\n\
                                 \t\t{} - {}\n\
                                 \t\tglobal - {}\n\
@@ -53,6 +54,9 @@ fn main() {
                             device
                                 .latency(&s)
                                 .map_or_else(|e| format!("Error: {}", e), |l| l.to_string()),
+                            device
+                                .manufacturer(&s)
+                                .map_or_else(|e| format!("Error: {}", e), |m| m),
                             s,
                             device
                                 .model_uid(Some(&s))

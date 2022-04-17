@@ -6,16 +6,17 @@ use coreaudio_sys::{
     kAudioDevicePropertyNominalSampleRate, kAudioDevicePropertyStreamConfiguration,
     kAudioDevicePropertyStreams, kAudioDevicePropertyTransportType,
     kAudioHardwarePropertyDefaultInputDevice, kAudioHardwarePropertyDefaultOutputDevice,
-    kAudioHardwarePropertyDevices, kAudioObjectPropertyElementMaster, kAudioObjectPropertyName,
-    kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyScopeInput,
-    kAudioObjectPropertyScopeOutput, AudioObjectPropertyAddress, AudioObjectPropertyScope,
-    AudioObjectPropertySelector,
+    kAudioHardwarePropertyDevices, kAudioObjectPropertyElementMaster,
+    kAudioObjectPropertyManufacturer, kAudioObjectPropertyName, kAudioObjectPropertyScopeGlobal,
+    kAudioObjectPropertyScopeInput, kAudioObjectPropertyScopeOutput, AudioObjectPropertyAddress,
+    AudioObjectPropertyScope, AudioObjectPropertySelector,
 };
 
 pub enum Property {
     DefaultInputDevice,
     DefaultOutputDevice,
     Devices,
+    DeviceManufacturer,
     DeviceName,
     ClockDomain,
     DeviceBufferFrameSizeRange,
@@ -39,6 +40,7 @@ impl From<Property> for AudioObjectPropertySelector {
             Property::DefaultOutputDevice => kAudioHardwarePropertyDefaultOutputDevice,
             Property::Devices => kAudioHardwarePropertyDevices,
             // kAudioObject*
+            Property::DeviceManufacturer => kAudioObjectPropertyManufacturer,
             Property::DeviceName => kAudioObjectPropertyName,
             // kAudioDeviceProperty*
             Property::ClockDomain => kAudioDevicePropertyClockDomain,
