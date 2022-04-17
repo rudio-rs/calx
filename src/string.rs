@@ -17,7 +17,9 @@ impl StringRef {
         }
 
         let length: CFIndex = unsafe { CFStringGetLength(self.0) };
-        if length == 0 {}
+        if length == 0 {
+            return Vec::new();
+        }
 
         // Get the buffer size of the string.
         let range: CFRange = CFRange {
@@ -37,7 +39,8 @@ impl StringRef {
                 &mut size,
             )
         };
-        assert!(converted_chars > 0 && size > 0);
+        assert_eq!(converted_chars, length);
+        assert!(size > 0);
 
         // Then, allocate the buffer with the required size and actually copy data into it.
         let mut buffer = vec![b'\x00'; size as usize];
@@ -53,7 +56,7 @@ impl StringRef {
                 ptr::null_mut() as *mut CFIndex,
             )
         };
-        assert!(converted_chars > 0);
+        assert_eq!(converted_chars, length);
 
         buffer
     }
@@ -70,4 +73,28 @@ impl Default for StringRef {
     fn default() -> Self {
         Self(ptr::null())
     }
+}
+
+#[test]
+fn test_create_cfstring_ref() {
+    use coreaudio_sys::{kCFAllocatorDefault, CFStringCreateWithBytes};
+    fn cfstringref_from_string(string: &str) -> CFStringRef {
+        let cfstringref = unsafe {
+            CFStringCreateWithBytes(
+                kCFAllocatorDefault,
+                string.as_ptr(),
+                string.len() as i64,
+                kCFStringEncodingUTF8,
+                false as Boolean,
+            )
+        };
+        cfstringref as CFStringRef
+    }
+    let expected1 = "Rustaceans 🦀";
+    let stringref1 = StringRef::new(cfstringref_from_string(expected1) as CFStringRef);
+    assert_eq!(expected1.as_bytes(), stringref1.to_utf8());
+
+    let expected2 = "";
+    let stringref2 = StringRef::new(cfstringref_from_string(expected2) as CFStringRef);
+    assert_eq!(expected2.as_bytes(), stringref2.to_utf8());
 }
