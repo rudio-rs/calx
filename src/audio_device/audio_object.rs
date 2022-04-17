@@ -35,6 +35,24 @@ impl AudioObject {
         )
     }
 
+    pub fn get_property_data_size<Q>(
+        &self,
+        address: &AudioObjectPropertyAddress,
+        in_qualifier_data_size: usize,
+        in_qualifier_data: *mut Q,
+        out_data_size: *mut usize,
+    ) -> OSStatus {
+        audio_object_get_property_data_size(
+            self.0,
+            address,
+            in_qualifier_data_size,
+            in_qualifier_data,
+            out_data_size,
+        )
+    }
+
+    // Frequently used utils:
+
     pub fn get_property_data_without_qualifier<D>(
         &self,
         address: &AudioObjectPropertyAddress,
@@ -48,6 +66,14 @@ impl AudioObject {
             io_data_size,
             out_data,
         )
+    }
+
+    fn get_property_data_size_without_qualifier(
+        &self,
+        address: &AudioObjectPropertyAddress,
+        out_data_size: *mut usize,
+    ) -> OSStatus {
+        self.get_property_data_size(address, 0, std::ptr::null_mut::<c_void>(), out_data_size)
     }
 
     pub fn get_property_data_common<D: Default + Sized>(
@@ -86,30 +112,6 @@ impl AudioObject {
         } else {
             Err(status)
         }
-    }
-
-    pub fn get_property_data_size<Q>(
-        &self,
-        address: &AudioObjectPropertyAddress,
-        in_qualifier_data_size: usize,
-        in_qualifier_data: *mut Q,
-        out_data_size: *mut usize,
-    ) -> OSStatus {
-        audio_object_get_property_data_size(
-            self.0,
-            address,
-            in_qualifier_data_size,
-            in_qualifier_data,
-            out_data_size,
-        )
-    }
-
-    pub fn get_property_data_size_without_qualifier(
-        &self,
-        address: &AudioObjectPropertyAddress,
-        out_data_size: *mut usize,
-    ) -> OSStatus {
-        self.get_property_data_size(address, 0, std::ptr::null_mut::<c_void>(), out_data_size)
     }
 }
 
