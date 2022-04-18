@@ -10,6 +10,7 @@ categories = ["api-bindings"]
 keywords = ["core", "audio", "osx"]
 
 [dependencies]
+core-foundation-sys = { version = "0.8" }
 
 [dependencies.coreaudio-sys]
 version = "0.2"

@@ -1,9 +1,11 @@
 use coreaudio_sys::{
-    /*noErr, */ AudioObjectGetPropertyData, AudioObjectGetPropertyDataSize, AudioObjectID,
+    noErr, AudioObjectGetPropertyData, AudioObjectGetPropertyDataSize, AudioObjectID,
     AudioObjectPropertyAddress, OSStatus, UInt32,
 };
 use std::mem;
 use std::os::raw::c_void;
+
+const NO_ERR: OSStatus = noErr as OSStatus;
 
 pub struct AudioObject(AudioObjectID);
 impl AudioObject {
@@ -47,6 +49,69 @@ impl AudioObject {
             in_qualifier_data,
             out_data_size,
         )
+    }
+
+    // Frequently used utils:
+
+    pub fn get_property_data_without_qualifier<D>(
+        &self,
+        address: &AudioObjectPropertyAddress,
+        io_data_size: *mut usize,
+        out_data: *mut D,
+    ) -> OSStatus {
+        self.get_property_data(
+            address,
+            0,
+            std::ptr::null_mut::<c_void>(),
+            io_data_size,
+            out_data,
+        )
+    }
+
+    fn get_property_data_size_without_qualifier(
+        &self,
+        address: &AudioObjectPropertyAddress,
+        out_data_size: *mut usize,
+    ) -> OSStatus {
+        self.get_property_data_size(address, 0, std::ptr::null_mut::<c_void>(), out_data_size)
+    }
+
+    pub fn get_property_data_common<D: Default + Sized>(
+        &self,
+        address: &AudioObjectPropertyAddress,
+    ) -> Result<D, OSStatus> {
+        let mut data = D::default();
+        let mut size = mem::size_of::<D>();
+        let status = self.get_property_data_without_qualifier(address, &mut size, &mut data);
+        if status == NO_ERR {
+            Ok(data)
+        } else {
+            Err(status)
+        }
+    }
+
+    pub fn get_property_array_common<D: Clone + Default + Sized>(
+        &self,
+        address: &AudioObjectPropertyAddress,
+    ) -> Result<Vec<D>, OSStatus> {
+        let mut size = 0;
+        let status = self.get_property_data_size_without_qualifier(address, &mut size);
+        if status != NO_ERR {
+            return Err(status);
+        }
+
+        let element_size = mem::size_of::<D>();
+        assert_eq!(size % element_size, 0);
+        let elements = size / element_size;
+        let mut buffer = vec![D::default(); elements];
+
+        let status =
+            self.get_property_data_without_qualifier(address, &mut size, buffer.as_mut_ptr());
+        if status == NO_ERR {
+            Ok(buffer)
+        } else {
+            Err(status)
+        }
     }
 }
 
